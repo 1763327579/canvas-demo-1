@@ -13,26 +13,49 @@
       let canvas = document.getElementById("canvas");
       canvas.width = document.documentElement.clientWidth;
       canvas.height = document.documentElement.clientHeight;
-      console.log(document.body.clientHeight);
       let ctx = canvas.getContext("2d");
       ctx.fillStyle = "black";
       ctx.strokeStyle = "none";
+      ctx.lineWidth = 8;
+      ctx.lineCap = "round";
       let flag = false;
-      canvas.onmousedown = () => {
-        flag = true;
-      };
-      canvas.onmousemove = (e) => {
-        if (flag === true) {
-          //   ctx.fillRect(e.clientX - 5, e.clientY - 5, 10, 10);
-          ctx.beginPath();
-          ctx.arc(e.clientX, e.clientY, 10, 0, 2 * Math.PI);
-          ctx.stroke();
-          ctx.fill();
-        }
-      };
-      canvas.onmouseup = () => {
-        flag = false;
-      };
+      let last;
+      var isTouchDevice = "ontouchstart" in document.documentElement;
+      console.log(isTouchDevice);
+      if (isTouchDevice) {
+        canvas.ontouchstart = (e) => {
+          let y = e.touches[0].clientY;
+          let x = e.touches[0].clientX;
+          last = [x, y];
+        };
+        canvas.ontouchmove = (e) => {
+          let y = e.touches[0].clientY;
+          let x = e.touches[0].clientX;
+          drawLine(last[0], last[1], x, y);
+          last = [x, y];
+        };
+      } else {
+        canvas.onmousedown = (e) => {
+          flag = true;
+          last = [e.clientX, e.clientY];
+          console.log("aaa" + last);
+        };
+        canvas.onmousemove = (e) => {
+          if (flag === true) {
+            drawLine(last[0], last[1], e.clientX, e.clientY);
+            last = [e.clientX, e.clientY];
+          }
+        };
+        canvas.onmouseup = () => {
+          flag = false;
+        };
+      }
+      function drawLine(x1, y1, x2, y2) {
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      }
     </script>
   </body>
 </html>
